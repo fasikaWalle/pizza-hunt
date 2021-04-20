@@ -17,6 +17,22 @@ const CommentController={
           })
           .catch(err => res.json(err));
     },
+    addReply({body,params},res){
+      Comment.findOneAndUpdate({_id:params.commentId},{$push:{replies:body}},{new:true}).then(dbPizzaData=>{
+        //if we use addToSet instead of push will remove duplicates 
+        if(!dbPizzaData){
+          res.status(404).json({message:'No pizza found with this id'})
+          return;
+        }
+        res.json(dbPizzaData)
+      }).catch(err=>{
+        res.json(err)
+      })
+    },
+    removeReply({params},res){
+      Comment.findOneAndUpdate({_id:params.commentId},{$pull:{replies:{replyId:params.replyId}}}).then(dbPizzaData => res.json(dbPizzaData))
+      .catch(err => res.json(err));
+    },
     removeComment({ params }, res) {
         Comment.findOneAndDelete({ _id: params.commentId })
           .then(deletedComment => {
